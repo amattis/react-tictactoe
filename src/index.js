@@ -119,15 +119,17 @@ class Game extends React.Component {
 
   render() {
     const history = this.state.history;
-    const current = history[ this.state.stepNumber ];
+    const stepNumber = this.state.stepNumber;
+    const current = history[ stepNumber ];
     const winner = calculateWinner( current.squares );
+    const historyIsReversed = this.state.historyIsReversed;
 
     const moves = history.map( ( step, move ) => {
       const loc = step.moveIndex;
       const col = loc % 3 + 1;
       const row = Math.ceil( ( loc + 1 ) / 3 );
       const count = [ ...Array( history.length ).keys() ];
-      const arrCount = this.state.historyIsReversed ? count.reverse() : count
+      const arrCount = historyIsReversed ? count.reverse() : count
 
       const desc = arrCount[ move ] ?
         'Go to move #' + arrCount[ move ] + ' (' + col + ', ' + row + ')' :
@@ -135,7 +137,7 @@ class Game extends React.Component {
       return (
         <li key={move}>
           <button
-            className={this.state.stepNumber === move ? "selected" : null}
+            className={stepNumber === move ? "selected" : null}
             onClick={() => this.jumpTo(move)}
           >
             {desc}
@@ -147,6 +149,8 @@ class Game extends React.Component {
     let status;
     if ( winner ) {
       status = 'Winner: ' + winner;
+    } else if (stepNumber === 9 || (isDraw(current.squares) && historyIsReversed)) {
+      status = 'The game has ended in a draw!';
     } else {
       status = 'Next player: ' + ( this.state.xIsNext ? 'X' : 'O' );
     }
@@ -205,4 +209,13 @@ function calculateWinner( squares ) {
     }
   }
   return null;
+}
+
+function isDraw( squares ) {
+  for ( let i = 0; i < squares.length; i++ ) {
+    if ( !squares[i] ) {
+      return false;
+    }
+  }
+  return true;
 }
